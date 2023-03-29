@@ -16,26 +16,22 @@ func New(db *gorm.DB) *MySqlRepository {
 
 func (mysql *MySqlRepository) Get(userId int64) (*domain.JwtToken, error) {
 	var token domain.JwtToken
-	result := config.DB.Where("user_id = ?", userId).First(&token)
-	err := result.Error
-	if err != nil {
+	if _, err := config.DB.Where("user_id = ?", userId).First(&token).Error; err != nil {
 
 	}
 	return &token, err
 }
 
 func (mysql *MySqlRepository) Save(token *domain.JwtToken) (*domain.JwtToken, error) {
-	err := config.DB.Table("tokens").Create(&token).Error
-	if err != nil {
+	if err := config.DB.Table("tokens").Create(&token).Error; err != nil {
 
 	}
 	return token, err
 }
 
 func (mysql *MySqlRepository) Delete(userId int64) error {
-	err := config.DB.Where("user_id = ?", userId).
-		Delete(&domain.JwtToken{}).Error
-	if err != nil {
+	if err := config.DB.Where("user_id = ?", userId).
+		Delete(&domain.JwtToken{}).Error; err != nil {
 
 	}
 	return err

@@ -11,5 +11,10 @@ func SetRouter() *gin.Engine {
 		auth.POST("")
 	}
 
+	authRouter := router.Group("/api/v1/auth-router")
+	{
+		authRouter.POST("")
+	}
+
 	return router
 }
