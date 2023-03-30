@@ -17,7 +17,7 @@ type AccessToken struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userInfo UserInfo) string {
+func GenerateAccessToken(userInfo UserInfo, secretKey []byte) string {
 	accessToken := AccessToken{
 		UserInfo: userInfo,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -27,7 +27,7 @@ func GenerateAccessToken(userInfo UserInfo) string {
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessToken).
-		SignedString("")
+		SignedString(secretKey)
 
 	if err != nil {
 		log.Fatalf("[ERROR] GenerateAccessToken : %s\n", err)
@@ -36,6 +36,18 @@ func GenerateAccessToken(userInfo UserInfo) string {
 	return token
 }
 
-func ValidateAccessToken(accessToken string) {
+func ValidateAccessToken(accessToken string, secretKey []byte) bool {
+	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
 
+	if err != nil {
+		log.Fatalf("[ERROR] ValidateAccessToken : %s\n", err)
+	}
+
+	if token.Valid {
+		return true
+	} else {
+		return false
+	}
 }

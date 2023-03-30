@@ -10,7 +10,7 @@ type RefreshToken struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateRefreshToken(userId int64) string {
+func GenerateRefreshToken(userId int64, secretKey []byte) string {
 	refreshToken := RefreshToken{
 		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -20,7 +20,7 @@ func GenerateRefreshToken(userId int64) string {
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshToken).
-		SignedString("")
+		SignedString(secretKey)
 
 	if err != nil {
 		log.Fatalf("[ERROR] GenerateRefreshToken : %s\n", err)
@@ -28,6 +28,18 @@ func GenerateRefreshToken(userId int64) string {
 
 	return token
 }
-func ValidateRefreshToken(refreshToken string) {
+func ValidateRefreshToken(refreshToken string, secretKey []byte) bool {
+	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
 
+	if err != nil {
+		log.Fatalf("[ERROR] ValidateRefreshToken : %s\n", err)
+	}
+
+	if token.Valid {
+		return true
+	} else {
+		return false
+	}
 }
