@@ -14,6 +14,8 @@ type JwtToken struct {
 	CreatedAt    time.Time `json:"createdAt" gorm:"autoCreateTime;not null;column:created_at"`
 }
 
+const ISSUER = "Deploy"
+
 // generateToken JWT 토큰 생성
 func generateToken(claims jwt.Claims, secretKey []byte) (string, error) {
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).
@@ -34,7 +36,7 @@ func GenerateAccessToken(userInfo UserInfo, secretKey []byte) (string, error) {
 		UserInfo: userInfo,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			Issuer:    "",
+			Issuer:    ISSUER,
 		},
 	}
 
@@ -49,7 +51,7 @@ func GenerateRefreshToken(userId int64, secretKey []byte) (string, error) {
 		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			Issuer:    "",
+			Issuer:    ISSUER,
 		},
 	}
 
