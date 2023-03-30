@@ -52,8 +52,8 @@ func GenerateRefreshToken(userId int64, secretKey []byte) string {
 	return token
 }
 
-func ValidateToken(accessToken string, secretKey []byte) bool {
-	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
+func ValidateToken(jwtToken string, secretKey []byte) bool {
+	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
