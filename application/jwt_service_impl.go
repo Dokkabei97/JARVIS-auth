@@ -11,12 +11,12 @@ type jwtToken struct {
 
 var _ JwtService = &jwtToken{}
 
-func (jwt *jwtToken) Update(user *domain.UserInfo) (*domain.JwtToken, error) {
+func (j *jwtToken) Update(accessToken string, refreshToken string, secretKey []byte, userInfo domain.UserInfo) (*domain.JwtToken, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (jwt *jwtToken) Validate(token *domain.JwtToken) (bool, error) {
+func (j *jwtToken) Validate(token string) (bool, error) {
 	//TODO implement me
 	panic("implement me")
 }
