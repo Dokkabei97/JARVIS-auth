@@ -1,8 +1,8 @@
 package domain
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	"log"
 	"time"
 )
 
@@ -14,56 +14,57 @@ type JwtToken struct {
 	CreatedAt    time.Time `json:"createdAt" gorm:"autoCreateTime;not null;column:created_at"`
 }
 
-func GenerateAccessToken(userInfo UserInfo, secretKey []byte) string {
-	accessToken := AccessToken{
-		UserInfo: userInfo,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: nil,
-			Issuer:    "nil",
-		},
-	}
-
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessToken).
+// generateToken JWT 토큰 생성
+func generateToken(claims jwt.Claims, secretKey []byte) (string, error) {
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).
 		SignedString(secretKey)
-
 	if err != nil {
-		log.Fatalf("[ERROR] GenerateAccessToken : %s\n", err)
+		return "", fmt.Errorf("[ERROR] GenerateToken : %s\n", err)
 	}
-
-	return token
+	return token, nil
 }
 
-func GenerateRefreshToken(userId int64, secretKey []byte) string {
-	refreshToken := RefreshToken{
-		UserId: userId,
+var loc, _ = time.LoadLocation("Asia/Seoul")
+
+// GenerateAccessToken Access JWT 토큰 생성
+func GenerateAccessToken(userInfo UserInfo, secretKey []byte) (string, error) {
+	expirationTime := time.Now().In(loc).Add(time.Hour)
+
+	accessToken := &AccessToken{
+		UserInfo: userInfo,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: nil,
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			Issuer:    "",
 		},
 	}
 
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshToken).
-		SignedString(secretKey)
-
-	if err != nil {
-		log.Fatalf("[ERROR] GenerateRefreshToken : %s\n", err)
-	}
-
-	return token
+	return generateToken(accessToken, secretKey)
 }
 
-func ValidateToken(jwtToken string, secretKey []byte) bool {
+// GenerateRefreshToken Refresh JWT 토큰 생성
+func GenerateRefreshToken(userId int64, secretKey []byte) (string, error) {
+	expirationTime := time.Now().In(loc).Add(time.Hour * 24 * 30)
+
+	refreshToken := &RefreshToken{
+		UserId: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			Issuer:    "",
+		},
+	}
+
+	return generateToken(refreshToken, secretKey)
+}
+
+// ValidateToken JWT 토큰 검증
+func ValidateToken(jwtToken string, secretKey []byte) (bool, error) {
 	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
-	if err != nil {
-		log.Fatalf("[ERROR] ValidateToken : %s\n", err)
+	if err != nil || !token.Valid {
+		return false, fmt.Errorf("[ERROR] ValidateToken : %s\n", err)
 	}
 
-	if token.Valid {
-		return true
-	} else {
-		return false
-	}
+	return true, nil
 }
