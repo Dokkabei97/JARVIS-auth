@@ -2,13 +2,14 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"is-deploy-auth/application"
-	"is-deploy-auth/infrastructure"
+	infrastructure "is-deploy-auth/infrastructure"
 	"is-deploy-auth/middleware"
 )
 
-func SetRouter() *gin.Engine {
-	jwtRepository := infrastructure.NewJwtRepository()
+func SetRouter(db *gorm.DB) *gin.Engine {
+	jwtRepository := infrastructure.NewJwtRepository(db)
 	jwtService := application.NewJwtTokenService(jwtRepository)
 	jwtAuthMiddleware := middleware.JwtAuthMiddleware(jwtService)
 
@@ -23,6 +24,7 @@ func SetRouter() *gin.Engine {
 	authRouter := router.Group("/api/v1/auth-router")
 	authRouter.Use(jwtAuthMiddleware)
 	{
+		authRouter.GET("")
 		authRouter.POST("")
 	}
 
