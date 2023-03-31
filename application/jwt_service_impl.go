@@ -11,7 +11,7 @@ type jwtToken struct {
 	jwtRepository infrastructure.JwtRepository
 }
 
-func NewJwtToken(jwtRepo infrastructure.JwtRepository) JwtService {
+func NewJwtTokenService(jwtRepo infrastructure.JwtRepository) JwtService {
 	return &jwtToken{jwtRepository: jwtRepo}
 }
 
@@ -20,8 +20,8 @@ func NewJwtToken(jwtRepo infrastructure.JwtRepository) JwtService {
 // 2. RefreshToken 유효성 검사
 // 3. DB에 저장된 토큰과 비교
 // 4. 토큰 갱신
-func (j *jwtToken) Update(accessToken, refreshToken string, secretKey []byte, userInfo domain.UserInfo) (*domain.JwtToken, error) {
-	valid, err := domain.ValidateToken(accessToken, secretKey)
+func (j *jwtToken) Update(accessToken, refreshToken string, userInfo domain.UserInfo) (*domain.JwtToken, error) {
+	valid, err := domain.ValidateToken(accessToken)
 	if err != nil {
 		return nil, fmt.Errorf("[ERROR] Update : %w", err)
 	}
@@ -30,7 +30,7 @@ func (j *jwtToken) Update(accessToken, refreshToken string, secretKey []byte, us
 		return nil, nil
 	}
 
-	valid, err = domain.ValidateToken(refreshToken, secretKey)
+	valid, err = domain.ValidateToken(refreshToken)
 	if err != nil || !valid {
 		return nil, errors.New("[ERROR] RefreshToken expired")
 	}
@@ -48,12 +48,12 @@ func (j *jwtToken) Update(accessToken, refreshToken string, secretKey []byte, us
 		return nil, fmt.Errorf("[ERROR] Update : %w", err)
 	}
 
-	newAccessToken, err := domain.GenerateAccessToken(userInfo, secretKey)
+	newAccessToken, err := domain.GenerateAccessToken(userInfo)
 	if err != nil {
 		return nil, fmt.Errorf("[ERROR] Update : %w", err)
 	}
 
-	newRefreshToken, err := domain.GenerateRefreshToken(userInfo.UserId, secretKey)
+	newRefreshToken, err := domain.GenerateRefreshToken(userInfo.UserId)
 	if err != nil {
 		return nil, fmt.Errorf("[ERROR] Update : %w", err)
 	}
@@ -73,6 +73,6 @@ func (j *jwtToken) Update(accessToken, refreshToken string, secretKey []byte, us
 }
 
 // Validate JWT 토큰 유효성 검사
-func (j *jwtToken) Validate(token string, secretKey []byte) (bool, error) {
-	return domain.ValidateToken(token, secretKey)
+func (j *jwtToken) Validate(token string) (bool, error) {
+	return domain.ValidateToken(token)
 }

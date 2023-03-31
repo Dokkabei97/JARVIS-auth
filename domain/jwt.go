@@ -3,6 +3,7 @@ package domain
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"is-deploy-auth/util"
 	"time"
 )
 
@@ -16,8 +17,10 @@ type JwtToken struct {
 
 const ISSUER = "Deploy"
 
+var secretKey = util.GetSecretKey()
+
 // generateToken JWT 토큰 생성
-func generateToken(claims jwt.Claims, secretKey []byte) (string, error) {
+func generateToken(claims jwt.Claims) (string, error) {
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).
 		SignedString(secretKey)
 	if err != nil {
@@ -29,7 +32,7 @@ func generateToken(claims jwt.Claims, secretKey []byte) (string, error) {
 var loc, _ = time.LoadLocation("Asia/Seoul")
 
 // GenerateAccessToken Access JWT 토큰 생성
-func GenerateAccessToken(userInfo UserInfo, secretKey []byte) (string, error) {
+func GenerateAccessToken(userInfo UserInfo) (string, error) {
 	expirationTime := time.Now().In(loc).Add(time.Hour)
 
 	accessToken := &AccessToken{
@@ -40,11 +43,11 @@ func GenerateAccessToken(userInfo UserInfo, secretKey []byte) (string, error) {
 		},
 	}
 
-	return generateToken(accessToken, secretKey)
+	return generateToken(accessToken)
 }
 
 // GenerateRefreshToken Refresh JWT 토큰 생성
-func GenerateRefreshToken(userId int64, secretKey []byte) (string, error) {
+func GenerateRefreshToken(userId int64) (string, error) {
 	expirationTime := time.Now().In(loc).Add(time.Hour * 24 * 30)
 
 	refreshToken := &RefreshToken{
@@ -55,11 +58,11 @@ func GenerateRefreshToken(userId int64, secretKey []byte) (string, error) {
 		},
 	}
 
-	return generateToken(refreshToken, secretKey)
+	return generateToken(refreshToken)
 }
 
 // ValidateToken JWT 토큰 검증
-func ValidateToken(jwtToken string, secretKey []byte) (bool, error) {
+func ValidateToken(jwtToken string) (bool, error) {
 	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})

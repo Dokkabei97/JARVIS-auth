@@ -11,7 +11,7 @@ type MySqlRepository struct {
 	db *gorm.DB
 }
 
-func New(db *gorm.DB) *MySqlRepository {
+func NewJwtRepository(db *gorm.DB) *MySqlRepository {
 	return &MySqlRepository{db}
 }
 
