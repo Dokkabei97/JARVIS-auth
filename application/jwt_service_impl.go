@@ -72,7 +72,22 @@ func (j *jwtToken) Update(accessToken, refreshToken string, userInfo domain.User
 	return newToken, nil
 }
 
-// Validate JWT 토큰 유효성 검사
+// Validate JWT 토큰 검증
+// 첫번째 리턴값 : 토큰 검증 여부
+// 두번째 리턴값 : 에러
 func (j *jwtToken) Validate(token string) (bool, error) {
 	return domain.ValidateToken(token)
+}
+
+// ValidateAdmin 관리자 권한 검증
+// 첫번째 리턴값 : 토큰 검증 여부
+// 두번째 리턴값 : 관리자 권한 여부
+// 세번째 리턴값 : 에러
+func (j *jwtToken) ValidateAdmin(token string) (bool, bool, error) {
+	tokenValid, isAdmin, err := domain.ValidateAdmin(token)
+	if err != nil || !tokenValid {
+		return false, false, err
+	}
+
+	return tokenValid, isAdmin, nil
 }

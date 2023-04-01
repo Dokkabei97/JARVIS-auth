@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"is-deploy-auth/util"
@@ -20,6 +21,10 @@ const ISSUER = "Deploy"
 var secretKey = util.GetSecretKey()
 
 // generateToken JWT 토큰 생성
+// 첫번째 리턴값 : 토큰
+// 두번째 리턴값 : 에러
+// 토큰 생성 실패시 에러 리턴
+// 토큰 생성 성공시 토큰 리턴
 func generateToken(claims jwt.Claims) (string, error) {
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).
 		SignedString(secretKey)
@@ -32,6 +37,9 @@ func generateToken(claims jwt.Claims) (string, error) {
 var loc, _ = time.LoadLocation("Asia/Seoul")
 
 // GenerateAccessToken Access JWT 토큰 생성
+// 1시간간 유효
+// 첫번째 리턴값 : 토큰
+// 두번째 리턴값 : 에러
 func GenerateAccessToken(userInfo UserInfo) (string, error) {
 	expirationTime := time.Now().In(loc).Add(time.Hour)
 
@@ -47,6 +55,9 @@ func GenerateAccessToken(userInfo UserInfo) (string, error) {
 }
 
 // GenerateRefreshToken Refresh JWT 토큰 생성
+// 30일간 유효
+// 첫번째 리턴값 : 토큰
+// 두번째 리턴값 : 에러
 func GenerateRefreshToken(userId int64) (string, error) {
 	expirationTime := time.Now().In(loc).Add(time.Hour * 24 * 30)
 
@@ -62,6 +73,8 @@ func GenerateRefreshToken(userId int64) (string, error) {
 }
 
 // ValidateToken JWT 토큰 검증
+// 첫번째 리턴값 : 토큰 검증 여부
+// 두번째 리턴값 : 에러
 func ValidateToken(jwtToken string) (bool, error) {
 	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
@@ -72,4 +85,35 @@ func ValidateToken(jwtToken string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// ValidateAdmin 관리자 권한 검증
+// 첫번째 리턴값 : 토큰 검증 여부
+// 두번째 리턴값 : 관리자 권한 여부
+// 세번째 리턴값 : 에러
+func ValidateAdmin(jwtToken string) (bool, bool, error) {
+	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
+
+	if err != nil {
+		return false, false, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	accessToken := AccessToken{
+		UserInfo: UserInfo{
+			UserId:  claims["userId"].(int64),
+			Email:   claims["email"].(string),
+			IsAdmin: claims["isAdmin"].(bool),
+			IsBlock: claims["isBlock"].(bool),
+		},
+	}
+
+	if !ok {
+		return false, false, errors.New("error parsing JWT claims")
+	}
+
+	return token.Valid, accessToken.UserInfo.IsAdmin, nil
 }
