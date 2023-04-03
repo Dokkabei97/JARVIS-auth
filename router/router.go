@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"is-deploy-auth/api"
 	"is-deploy-auth/application"
 	"is-deploy-auth/infrastructure"
 	"is-deploy-auth/middleware"
@@ -22,19 +23,24 @@ func SetRouter(db *gorm.DB) *gin.Engine {
 		auth.POST("")
 	}
 
+	authRouterAdmin := router.Group("/api/v1/auth-router-admin")
+	authRouterAdmin.Use(jwtAuthAdminMiddleware)
+	{
+
+	}
+
 	authRouter := router.Group("/api/v1/auth-router")
 	authRouter.Use(jwtAuthMiddleware)
 	{
 		authRouter.Group("/load-balance")
 		{
-			authRouter.GET("")
-			authRouter.PUT("/exclude")
-			authRouter.PUT("/restore")
+			authRouter.PUT("/exclude", api.Exclude)
+			authRouter.PUT("/restore", api.Restore)
 		}
 
 		authRouter.Group("/deploy")
 		{
-			authRouter.PUT("/shell")
+			authRouter.PUT("/shell", api.Deploy)
 		}
 
 		authRouter.Group("/setting")
@@ -51,12 +57,6 @@ func SetRouter(db *gorm.DB) *gin.Engine {
 		authRouter.Group("/logs")
 		{
 			authRouter.GET("")
-		}
-
-		authRouter.Group("/health-check")
-		{
-			authRouter.GET("/agent")
-			authRouter.GET("/tomcat")
 		}
 	}
 
