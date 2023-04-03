@@ -40,3 +40,7 @@ func (mysql *MySqlRepository) Delete(userId int64) error {
 	}
 	return err
 }
+
+func (mysql *MySqlRepository) GetServiceConfig(serviceId int64) (string, error) {
+	config.DB.Where("service_id = ?", serviceId)
+}
