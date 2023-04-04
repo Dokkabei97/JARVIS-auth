@@ -88,7 +88,7 @@ func ValidateToken(jwtToken string) (bool, error) {
 }
 
 // ValidateAdmin 관리자 권한 검증
-// 첫번째 리턴값 : 토큰 검증 여부
+// 첫번째 리턴값 : 토큰 검증 여부d
 // 두번째 리턴값 : 관리자 권한 여부
 // 세번째 리턴값 : 에러
 func ValidateAdmin(jwtToken string) (bool, int64, bool, error) {

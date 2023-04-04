@@ -38,14 +38,9 @@ func JwtAuthAdminMiddleware(jwtService application.JwtService) gin.HandlerFunc {
 			return
 		}
 
-		valid, isAdmin, err := jwtService.ValidateAdmin(token)
-		if err != nil || !valid {
+		valid, isAdmin, _, err := jwtService.ValidateAdmin(token)
+		if err != nil || !valid || !isAdmin {
 			context.AbortWithStatusJSON(401, gin.H{"message": "Unauthorized"})
-			return
-		}
-
-		if !isAdmin {
-			context.AbortWithStatusJSON(403, gin.H{"message": "Forbidden: insufficient privileges"})
 			return
 		}
 

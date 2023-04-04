@@ -49,3 +49,12 @@ func (mysql *MySqlRepository) GetUser(userId int64) (*domain.User, error) {
 	}
 	return &user, err
 }
+
+func (mysql *MySqlRepository) GetAdminLevel(userId int64) (*domain.AdminLevel, error) {
+	var adminLevel domain.AdminLevel
+	err := config.DB.Where("user_id = ?", userId).First(&adminLevel).Error
+	if err != nil {
+		log.Fatalf("[ERROR] GetAdminLevel : %s\n", err)
+	}
+	return &adminLevel, err
+}
