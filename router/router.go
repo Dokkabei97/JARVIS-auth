@@ -29,35 +29,23 @@ func SetRouter(db *gorm.DB) *gin.Engine {
 
 	}
 
-	authRouter := router.Group("/api/v1/auth-router")
-	authRouter.Use(jwtAuthMiddleware)
+	lb := router.Group("/api/v1/load-balance")
+	lb.Use(jwtAuthMiddleware)
 	{
-		authRouter.Group("/load-balance")
-		{
-			authRouter.PUT("/exclude", api.Exclude)
-			authRouter.PUT("/restore", api.Restore)
-		}
+		lb.PUT("/exclude", api.Exclude)
+		lb.PUT("/restore", api.Restore)
+	}
 
-		authRouter.Group("/deploy")
-		{
-			authRouter.PUT("/shell", api.Deploy)
-		}
+	dp := router.Group("/api/v1/deploy")
+	dp.Use(jwtAuthMiddleware)
+	{
+		dp.PUT("/shell", api.Deploy)
+	}
 
-		authRouter.Group("/setting")
-		{
-			authRouter.PUT("")
-		}
-
-		authRouter.Group("/update")
-		{
-			authRouter.PUT("/:version")
-			authRouter.GET("/version")
-		}
-
-		authRouter.Group("/logs")
-		{
-			authRouter.GET("")
-		}
+	set := router.Group("/api/v1/setting")
+	set.Use(jwtAuthMiddleware)
+	{
+		set.PUT("", api.SyncSettingJson)
 	}
 
 	return router

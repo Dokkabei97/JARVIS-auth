@@ -15,15 +15,45 @@ func NewJwtTokenService(jwtRepo infrastructure.JwtRepository) JwtService {
 	return &jwtToken{jwtRepository: jwtRepo}
 }
 
-// Update JWT 토큰 갱신
+// IssueToken JWT 토큰 발급
+// 1. AccessToken 발급
+// 2. RefreshToken 발급
+// 3. DB에 저장
+// 4. 토큰 반환
+// 5. 에러 발생 시 에러 반환
+func (j *jwtToken) IssueToken(userInfo domain.UserInfo) (*domain.JwtToken, error) {
+	accessToken, err := domain.GenerateAccessToken(userInfo)
+	if err != nil {
+
+	}
+	refreshToken, err := domain.GenerateRefreshToken(userInfo.UserId)
+	if err != nil {
+
+	}
+
+	jwtToken := &domain.JwtToken{
+		UserId:       userInfo.UserId,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	newToken, err := j.jwtRepository.Save(jwtToken)
+	if err != nil {
+		return nil, fmt.Errorf("[ERROR] IssueToken : %w", err)
+	}
+
+	return newToken, nil
+}
+
+// ReissueToken JWT 토큰 재발급
 // 1. AccessToken 유효성 검사
 // 2. RefreshToken 유효성 검사
 // 3. DB에 저장된 토큰과 비교
 // 4. 토큰 갱신
-func (j *jwtToken) Update(accessToken, refreshToken string, userInfo domain.UserInfo) (*domain.JwtToken, error) {
+func (j *jwtToken) ReissueToken(accessToken, refreshToken string, userInfo domain.UserInfo) (*domain.JwtToken, error) {
 	valid, err := domain.ValidateToken(accessToken)
 	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Update : %w", err)
+		return nil, fmt.Errorf("[ERROR] ReissueToken : %w", err)
 	}
 
 	if valid {
@@ -37,7 +67,7 @@ func (j *jwtToken) Update(accessToken, refreshToken string, userInfo domain.User
 
 	tokens, err := j.jwtRepository.Get(userInfo.UserId)
 	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Update : %w", err)
+		return nil, fmt.Errorf("[ERROR] ReissueToken : %w", err)
 	}
 
 	if tokens.AccessToken != accessToken || tokens.RefreshToken != refreshToken {
@@ -45,17 +75,17 @@ func (j *jwtToken) Update(accessToken, refreshToken string, userInfo domain.User
 	}
 
 	if err := j.jwtRepository.Delete(userInfo.UserId); err != nil {
-		return nil, fmt.Errorf("[ERROR] Update : %w", err)
+		return nil, fmt.Errorf("[ERROR] ReissueToken : %w", err)
 	}
 
 	newAccessToken, err := domain.GenerateAccessToken(userInfo)
 	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Update : %w", err)
+		return nil, fmt.Errorf("[ERROR] ReissueToken : %w", err)
 	}
 
 	newRefreshToken, err := domain.GenerateRefreshToken(userInfo.UserId)
 	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Update : %w", err)
+		return nil, fmt.Errorf("[ERROR] ReissueToken : %w", err)
 	}
 
 	jwtToken := &domain.JwtToken{
@@ -66,7 +96,7 @@ func (j *jwtToken) Update(accessToken, refreshToken string, userInfo domain.User
 
 	newToken, err := j.jwtRepository.Save(jwtToken)
 	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Update : %w", err)
+		return nil, fmt.Errorf("[ERROR] ReissueToken : %w", err)
 	}
 
 	return newToken, nil

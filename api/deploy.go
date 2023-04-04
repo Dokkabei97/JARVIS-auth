@@ -32,7 +32,6 @@ func Deploy(context *gin.Context) {
 	defer res.Body.Close()
 
 	context.JSON(http.StatusOK, gin.H{
-		"message": "배포 쉘 스크립트가 실행 되었습니다.",
-		"output":  res,
+		"message": res.Body,
 	})
 }

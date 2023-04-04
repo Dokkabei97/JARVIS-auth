@@ -6,5 +6,4 @@ type JwtRepository interface {
 	Get(userId int64) (*domain.JwtToken, error)
 	Save(token *domain.JwtToken) (*domain.JwtToken, error)
 	Delete(userId int64) error
-	GetServiceConfig(serviceId int64) (string, error)
 }

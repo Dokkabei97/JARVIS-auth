@@ -31,7 +31,7 @@ func Exclude(context *gin.Context) {
 	defer res.Body.Close()
 
 	context.JSON(http.StatusOK, gin.H{
-		"message": body.Worker + " 제외되었습니다",
+		"message": res.Body,
 	})
 }
 
@@ -55,6 +55,6 @@ func Restore(context *gin.Context) {
 	defer res.Body.Close()
 
 	context.JSON(http.StatusOK, gin.H{
-		"message": "연결이 복원되었습니다",
+		"message": res.Body,
 	})
 }

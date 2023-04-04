@@ -29,7 +29,7 @@ func generateToken(claims jwt.Claims) (string, error) {
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).
 		SignedString(secretKey)
 	if err != nil {
-		return "", fmt.Errorf("[ERROR] GenerateToken : %s\n", err)
+		return "", fmt.Errorf("[ERROR] IssueToken : %s\n", err)
 	}
 	return token, nil
 }
