@@ -19,8 +19,13 @@ func SetRouter(db *gorm.DB) *gin.Engine {
 
 	auth := router.Group("/api/v1/auth")
 	{
-		auth.GET("")
-		auth.POST("")
+		auth.POST("/issue-token", func(context *gin.Context) {
+			api.MakeToken(context, jwtService, false)
+		})
+
+		auth.POST("/reissue-token", func(context *gin.Context) {
+			api.MakeToken(context, jwtService, true)
+		})
 	}
 
 	authRouterAdmin := router.Group("/api/v1/auth-router-admin")

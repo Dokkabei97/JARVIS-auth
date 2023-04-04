@@ -24,11 +24,11 @@ func NewJwtTokenService(jwtRepo infrastructure.JwtRepository) JwtService {
 func (j *jwtToken) IssueToken(userInfo domain.UserInfo) (*domain.JwtToken, error) {
 	accessToken, err := domain.GenerateAccessToken(userInfo)
 	if err != nil {
-
+		return nil, fmt.Errorf("[ERROR] IssueToken : %w", err)
 	}
 	refreshToken, err := domain.GenerateRefreshToken(userInfo.UserId)
 	if err != nil {
-
+		return nil, fmt.Errorf("[ERROR] IssueToken : %w", err)
 	}
 
 	jwtToken := &domain.JwtToken{
@@ -57,12 +57,12 @@ func (j *jwtToken) ReissueToken(accessToken, refreshToken string, userInfo domai
 	}
 
 	if valid {
-		return nil, nil
+		return nil, fmt.Errorf("[ERROR] ReissueToken: AccessToken is not expired")
 	}
 
 	valid, err = domain.ValidateToken(refreshToken)
 	if err != nil || !valid {
-		return nil, errors.New("[ERROR] RefreshToken expired")
+		return nil, errors.New("[ERROR] RefreshToken: RefreshToken is expired")
 	}
 
 	tokens, err := j.jwtRepository.Get(userInfo.UserId)

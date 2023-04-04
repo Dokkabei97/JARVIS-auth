@@ -23,11 +23,15 @@ func Deploy(context *gin.Context) {
 	api := fmt.Sprintf("http://%s%s/api/v1/health-check/agent?worker=%s&arguments=%s", body.CommonBody.Host, body.CommonBody.Port, body.Worker, body.Arguments)
 	req, err := http.NewRequest("PUT", api, nil)
 	if err != nil {
-
+		context.JSON(http.StatusOK, gin.H{
+			"error": err,
+		})
 	}
 	res, err := client.Do(req)
 	if err != nil {
-
+		context.JSON(http.StatusOK, gin.H{
+			"error": err,
+		})
 	}
 	defer res.Body.Close()
 

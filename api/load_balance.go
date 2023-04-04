@@ -22,11 +22,15 @@ func Exclude(context *gin.Context) {
 	api := fmt.Sprintf("http://%s%s/api/v1/load-balance/exclude?worker=%s", body.CommonBody.Host, body.CommonBody.Port, body.Worker)
 	req, err := http.NewRequest("PUT", api, nil)
 	if err != nil {
-
+		context.JSON(http.StatusOK, gin.H{
+			"error": err,
+		})
 	}
 	res, err := client.Do(req)
 	if err != nil {
-
+		context.JSON(http.StatusOK, gin.H{
+			"error": err,
+		})
 	}
 	defer res.Body.Close()
 
@@ -46,11 +50,15 @@ func Restore(context *gin.Context) {
 	api := fmt.Sprintf("http://%s%s/api/v1/load-balance/restore", body.CommonBody.Host, body.CommonBody.Port)
 	req, err := http.NewRequest("PUT", api, nil)
 	if err != nil {
-
+		context.JSON(http.StatusOK, gin.H{
+			"error": err,
+		})
 	}
 	res, err := client.Do(req)
 	if err != nil {
-
+		context.JSON(http.StatusOK, gin.H{
+			"error": err,
+		})
 	}
 	defer res.Body.Close()
 

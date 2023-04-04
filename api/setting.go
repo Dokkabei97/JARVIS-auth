@@ -28,12 +28,16 @@ func SyncSettingJson(context *gin.Context) {
 	req.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
-
+		context.JSON(http.StatusOK, gin.H{
+			"error": err,
+		})
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
-
+		context.JSON(http.StatusOK, gin.H{
+			"error": err,
+		})
 	}
 	defer res.Body.Close()
 
