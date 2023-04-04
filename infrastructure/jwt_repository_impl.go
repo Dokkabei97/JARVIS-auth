@@ -40,3 +40,12 @@ func (mysql *MySqlRepository) Delete(userId int64) error {
 	}
 	return err
 }
+
+func (mysql *MySqlRepository) GetUser(userId int64) (*domain.User, error) {
+	var user domain.User
+	err := config.DB.Where("id = ?", userId).First(&user).Error
+	if err != nil {
+		log.Fatalf("[ERROR] GetUser : %s\n", err)
+	}
+	return &user, err
+}

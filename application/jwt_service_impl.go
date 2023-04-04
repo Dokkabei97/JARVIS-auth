@@ -114,9 +114,18 @@ func (j *jwtToken) Validate(token string) (bool, error) {
 // 두번째 리턴값 : 관리자 권한 여부
 // 세번째 리턴값 : 에러
 func (j *jwtToken) ValidateAdmin(token string) (bool, bool, error) {
-	tokenValid, isAdmin, err := domain.ValidateAdmin(token)
+	tokenValid, userId, isAdmin, err := domain.ValidateAdmin(token)
 	if err != nil || !tokenValid {
 		return false, false, err
+	}
+
+	user, err := j.jwtRepository.GetUser(userId)
+	if err != nil {
+		return false, false, err
+	}
+
+	if user.IsAdmin != isAdmin {
+		return false, false, errors.New("위조된 토큰입니다, 관리자 권한이 없는 토큰입니다")
 	}
 
 	return tokenValid, isAdmin, nil

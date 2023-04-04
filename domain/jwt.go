@@ -91,13 +91,13 @@ func ValidateToken(jwtToken string) (bool, error) {
 // 첫번째 리턴값 : 토큰 검증 여부
 // 두번째 리턴값 : 관리자 권한 여부
 // 세번째 리턴값 : 에러
-func ValidateAdmin(jwtToken string) (bool, bool, error) {
+func ValidateAdmin(jwtToken string) (bool, int64, bool, error) {
 	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
 	if err != nil {
-		return false, false, err
+		return false, 0, false, err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
@@ -112,8 +112,8 @@ func ValidateAdmin(jwtToken string) (bool, bool, error) {
 	}
 
 	if !ok {
-		return false, false, errors.New("error parsing JWT claims")
+		return false, accessToken.UserInfo.UserId, false, errors.New("error parsing JWT claims")
 	}
 
-	return token.Valid, accessToken.UserInfo.IsAdmin, nil
+	return token.Valid, accessToken.UserInfo.UserId, accessToken.UserInfo.IsAdmin, nil
 }
