@@ -29,10 +29,19 @@ func MakeToken(context *gin.Context, jwtService application.JwtService, isReissu
 			})
 		}
 
+		http.SetCookie(context.Writer, &http.Cookie{
+			Name:     "refreshToken",
+			Value:    token.RefreshToken,
+			MaxAge:   30 * 24 * 60 * 60,
+			HttpOnly: true,
+			Secure:   gin.Mode() != gin.DebugMode,
+			SameSite: http.SameSiteStrictMode,
+			Path:     "/",
+		})
+
 		context.JSON(http.StatusOK, gin.H{
-			"status":       true,
-			"accessToken":  token.AccessToken,
-			"refreshToken": token.RefreshToken,
+			"status":      true,
+			"accessToken": token.AccessToken,
 		})
 	} else {
 		var body IssueTokenRequest
@@ -48,10 +57,20 @@ func MakeToken(context *gin.Context, jwtService application.JwtService, isReissu
 				"error": err,
 			})
 		}
+
+		http.SetCookie(context.Writer, &http.Cookie{
+			Name:     "refreshToken",
+			Value:    token.RefreshToken,
+			MaxAge:   30 * 24 * 60 * 60,
+			HttpOnly: true,
+			Secure:   gin.Mode() != gin.DebugMode,
+			SameSite: http.SameSiteStrictMode,
+			Path:     "/",
+		})
+
 		context.JSON(http.StatusOK, gin.H{
-			"status":       true,
-			"accessToken":  token.AccessToken,
-			"refreshToken": token.RefreshToken,
+			"status":      true,
+			"accessToken": token.AccessToken,
 		})
 	}
 }
