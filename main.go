@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-const port = ":8080"
+const port = ":7070"
 
 var err error
 

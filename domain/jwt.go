@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type JwtToken struct {
+type Token struct {
 	Id           int64     `json:"id" gorm:"primaryKey;autoIncrement"`
 	UserId       int64     `json:"userId" gorm:"not null;column:user_id"`
 	AccessToken  string    `json:"accessToken" gorm:"not null;column:access_token"`
