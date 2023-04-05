@@ -44,7 +44,7 @@ func TestMySqlRepository_Save(t *testing.T) {
 	rt, _ := refresh.SignedString(secretKey)
 	//fmt.Printf("refreshToken => %s\n", rt)
 
-	token := domain.JwtToken{
+	token := domain.Token{
 		UserId:       1,
 		AccessToken:  at,
 		RefreshToken: rt,

@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-const port = ":8080"
+const port = ":7070"
 
 var err error
 
@@ -18,7 +18,7 @@ func main() {
 		log.Fatalf("에러 %s", err)
 	}
 
-	server := router.SetRouter()
+	server := router.SetRouter(config.DB)
 	err = server.Run(port)
 	if err != nil {
 		log.Fatalf("에러 %s", err)

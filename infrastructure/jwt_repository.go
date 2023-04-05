@@ -3,7 +3,9 @@ package infrastructure
 import "is-deploy-auth/domain"
 
 type JwtRepository interface {
-	Get(userId int64) (*domain.JwtToken, error)
-	Save(token *domain.JwtToken) (*domain.JwtToken, error)
-	Delete(userId int64) error
+	GetTokenByUserId(userId int64) (*domain.Token, error)
+	SaveToken(token *domain.Token) (*domain.Token, error)
+	DeleteTokenById(tokenId int64) error
+	GetUserById(userId int64) (*domain.User, error)
+	GetAdminLevelByUserId(userId int64) (*domain.AdminLevel, error)
 }
